@@ -24,9 +24,17 @@ app.get('/home', async (req, res) => {
         }
     });
 
-    const animeTop = animeTopResponse.data;
+    const animeTopData = animeTopResponse.data.data;
 
-    res.json(animeTop);
+    const animeTop = animeTopData.map(anime => ({
+        images: anime.images.webp.image_url,
+        title: anime.title_english,
+        type: anime.type,
+        episodes: anime.episodes,
+
+    }))
+
+    res.json({animeTop:animeTop});
     } catch (error) {
         console.error('Error fetching anime details for home page', error);
         res.status(500).json({ error: 'Failed to fetch anime data' });
