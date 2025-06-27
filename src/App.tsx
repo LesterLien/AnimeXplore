@@ -8,8 +8,12 @@ import Navigator from './components/Navigator';
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-        <Navbar/>
-        <Navigator/>
+      <div className="h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 overflow-auto">
+          <Navigator />
+        </div>
+      </div>
     </BrowserRouter>
   </StrictMode>
 )
