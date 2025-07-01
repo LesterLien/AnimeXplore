@@ -16,17 +16,35 @@ app.get('/', (req, res) => {
 
 app.get('/home', async (req, res) => {
     try {
-        const animeTopResponse = await axios.get('https://api.jikan.moe/v4/top/anime', {
+        const airingTopResponse = await axios.get('https://api.jikan.moe/v4/top/anime', {
         params: {
             type: 'tv',
             sfw: true,
-            limit: 5
+            limit: 10,
+            filter: 'airing'
         }
     });
 
-    const animeTop = animeTopResponse.data;
+    const airingTopData = airingTopResponse.data.data;
 
-    res.json(animeTop);
+    const uniqueIds = new Set<number>();
+    const airingTop = airingTopData
+    .filter(anime => {
+        if (uniqueIds.has(anime.mal_id)) return false;
+        uniqueIds.add(anime.mal_id);
+        return true;
+    })
+    .slice(0, 5)
+    .map(anime => ({
+        mal_id: anime.mal_id,
+        images: anime.images.webp.image_url,
+        title: anime.title,
+        type: anime.type,
+        episodes: anime.episodes,
+    }));
+
+
+    res.json({airingTop: airingTop});
     } catch (error) {
         console.error('Error fetching anime details for home page', error);
         res.status(500).json({ error: 'Failed to fetch anime data' });
