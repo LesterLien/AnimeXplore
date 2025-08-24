@@ -34,6 +34,32 @@ type Result = {
 //10minute cache
 const homeCache = new Cache<Record<string, unknown>>(10 * 60 * 1000); 
 
+//FUNCTIONS
+function filterUniqueById(animes: AnimeData[], fetchLimit: number, maxInJson?: number) {
+  const usedIds = new Set<number>();
+  const unique: Result['data'] = [];
+
+  for (const anime of animes) {
+    if (!usedIds.has(anime.mal_id)) {
+      usedIds.add(anime.mal_id);
+      unique.push({
+        mal_id: anime.mal_id,
+        images: anime.images.webp.image_url,
+        title: anime.title,
+        type: anime.type,
+        episodes: anime.episodes ?? null,
+      });
+    }
+    if (unique.length >= fetchLimit) break;
+  }
+
+  if (maxInJson !== undefined) {
+    return unique.slice(0, maxInJson);
+  }
+
+  return unique;
+}
+
 app.get('/home', async (req: Request, res: Response): Promise<any> => {
   const cached = homeCache.get();
   if (cached) {
@@ -64,25 +90,24 @@ app.get('/home', async (req: Request, res: Response): Promise<any> => {
         }
       );
 
-      const usedIds = new Set<number>();
-      const uniqueAnimes: Result['data'] = [];
+      const uniqueTop = filterUniqueById(response.data.data, 10, 5);
+      results.push({ key: endpoint.key, data: uniqueTop }); 
 
-      for (const anime of response.data.data) {
-        if (!usedIds.has(anime.mal_id)) {
-          usedIds.add(anime.mal_id);
-          uniqueAnimes.push({
-            mal_id: anime.mal_id,
-            images: anime.images.webp.image_url,
-            title: anime.title,
-            type: anime.type,
-            episodes: anime.episodes ?? null,
-          });
-        }
-      }
-
-      results.push({ key: endpoint.key, data: uniqueAnimes });
       await delay(350);
     }
+    const seasonResponse = await axios.get<{ data: AnimeData[] }>(
+      'https://api.jikan.moe/v4/seasons/now',
+      {
+        params: {
+          filter: 'tv',
+          sfw: true,
+          limit: 16,
+        },
+      }
+    );
+    const seasonNow = filterUniqueById(seasonResponse.data.data, 16, 8);
+    results.push({ key: 'seasonNow', data: seasonNow });
+
 
     const data = Object.fromEntries(results.map((r) => [r.key, r.data]));
 
