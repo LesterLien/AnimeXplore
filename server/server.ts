@@ -12,9 +12,22 @@ app.use(cors());
 app.use(express.json());
 
 
-type AnimeData = {
+type AnimeCardData = {
   mal_id: number;
   images: { webp: { image_url: string } };
+  title: string;
+  type: string;
+  episodes: number | null;
+};
+
+type AnimeTrendingData = {
+  mal_id: number;
+  images: { webp: { image_url: string } };
+  trailer: {
+    images: {
+      maximum_image_url: string;
+    };
+  };
   title: string;
   type: string;
   episodes: number | null;
@@ -35,7 +48,7 @@ type Result = {
 const homeCache = new Cache<Record<string, unknown>>(10 * 60 * 1000); 
 
 //FUNCTIONS
-function filterUniqueById(animes: AnimeData[], fetchLimit: number, maxInJson?: number) {
+function filterUniqueCard(animes: AnimeCardData[], fetchLimit: number, maxInJson?: number) {
   const usedIds = new Set<number>();
   const unique: Result['data'] = [];
 
@@ -53,12 +66,31 @@ function filterUniqueById(animes: AnimeData[], fetchLimit: number, maxInJson?: n
     if (unique.length >= fetchLimit) break;
   }
 
-  if (maxInJson !== undefined) {
-    return unique.slice(0, maxInJson);
+  return maxInJson !== undefined ? unique.slice(0, maxInJson) : unique;
+}
+
+function filterUniqueTrending(animes: AnimeTrendingData[], fetchLimit: number, maxInJson?: number) {
+  const usedIds = new Set<number>();
+  const unique: Result['data'] = [];
+
+  for (const anime of animes) {
+    if (!usedIds.has(anime.mal_id)) {
+      usedIds.add(anime.mal_id);
+      unique.push({
+        mal_id: anime.mal_id,
+        images: anime.trailer.images.maximum_image_url, 
+        title: anime.title,
+        type: anime.type,
+        episodes: anime.episodes ?? null,
+      });
+    }
+    if (unique.length >= fetchLimit) break;
   }
 
-  return unique;
+  return maxInJson !== undefined ? unique.slice(0, maxInJson) : unique;
 }
+
+
 
 app.get('/home', async (req: Request, res: Response): Promise<any> => {
   const cached = homeCache.get();
@@ -78,7 +110,7 @@ app.get('/home', async (req: Request, res: Response): Promise<any> => {
     const results: Result[] = [];
 
     for (const endpoint of endpoints) {
-      const response = await axios.get<{ data: AnimeData[] }>(
+      const response = await axios.get<{ data: AnimeCardData[] }>(
         'https://api.jikan.moe/v4/top/anime',
         {
           params: {
@@ -90,12 +122,12 @@ app.get('/home', async (req: Request, res: Response): Promise<any> => {
         }
       );
 
-      const uniqueTop = filterUniqueById(response.data.data, 10, 5);
+      const uniqueTop = filterUniqueCard(response.data.data, 10, 5);
       results.push({ key: endpoint.key, data: uniqueTop }); 
 
       await delay(350);
     }
-    const seasonResponse = await axios.get<{ data: AnimeData[] }>(
+    const seasonResponse = await axios.get<{ data: AnimeCardData[] }>(
       'https://api.jikan.moe/v4/seasons/now',
       {
         params: {
@@ -105,8 +137,21 @@ app.get('/home', async (req: Request, res: Response): Promise<any> => {
         },
       }
     );
-    const seasonNow = filterUniqueById(seasonResponse.data.data, 16, 8);
+    const seasonNow = filterUniqueCard(seasonResponse.data.data, 16, 8);
     results.push({ key: 'seasonNow', data: seasonNow });
+
+    const trendingResponse = await axios.get<{ data: AnimeTrendingData[] }>(
+      'https://api.jikan.moe/v4/top/anime',
+      {
+        params: {
+          filter: 'airing',
+          sfw: true,
+          limit: 10,
+        },
+      }
+    );
+    const trendingTop = filterUniqueTrending(trendingResponse.data.data, 10, 5);
+    results.push({ key: 'trendingTop', data: trendingTop });
 
 
     const data = Object.fromEntries(results.map((r) => [r.key, r.data]));
