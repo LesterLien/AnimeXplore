@@ -8,6 +8,10 @@ type Anime = {
   title: string;
   type: string;
   episodes: number | null;
+  score: number;
+  favorites: number;
+  synopsis: string;
+  genres: string[];
 };
 
 export default function Home() {
@@ -51,7 +55,7 @@ export default function Home() {
     if (topTrendingAnime.length === 0) return;
     const interval = setInterval(() => {
       handleNext();
-    }, 10000);
+    }, 1000000);
 
     return () => clearInterval(interval);
   }, [topTrendingAnime]);
@@ -91,53 +95,80 @@ export default function Home() {
 
   return (
     <div className="h-full">
-      <div className="outline-amber-50 outline-1 w-full h-[60%] flex items-center justify-between px-5 text-3xl">
-        <GrPrevious
-          onClick={handlePrev}
-          className="hover:text-[#854CE6] transition-colors duration-200 cursor-pointer"
-        />
-
-        <div className="flex flex-row items-center gap-6 overflow-hidden w-[400px] justify-center">
-          <AnimatePresence mode="wait" custom={direction}>
-            {topTrendingAnime.length > 0 && (
-              <motion.div
-                key={currentIndex}
-                custom={direction}
-                variants={variants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.4 }}
-                className="flex flex-row items-center gap-6"
-              >
-                <div className="flex flex-col max-w-[200px]">
-                  <h2 className="text-xl font-bold">
-                    {topTrendingAnime[currentIndex].title}
-                  </h2>
-                  <span className="text-sm">
-                    {topTrendingAnime[currentIndex].type}
+      <div className="outline-amber-50 outline-1 w-full h-[70%] relative flex items-center text-3xl overflow-hidden">
+        <AnimatePresence mode="wait" custom={direction}>
+          {topTrendingAnime.length > 0 && (
+            <motion.div
+              key={currentIndex}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.4 }}
+              className="flex w-full h-full flex-col md:flex-row items-center"
+            >
+              <div className="flex flex-col justify-center md:w-[45%] w-full pl-6 md:pl-10 pr-6 z-10 text-[12px] gap-y-4">
+                <h2 className="text-[48px] font-bold line-clamp-2">
+                  {topTrendingAnime[currentIndex].title}
+                </h2>
+                 <div className="flex flex-row gap-3">
+                  <span>{topTrendingAnime[currentIndex].type}</span>
+                  <span>
+                    Episodes: {topTrendingAnime[currentIndex].episodes ?? "N/A"}
                   </span>
-                  <span className="text-sm">
-                    Episodes:{" "}
-                    {topTrendingAnime[currentIndex].episodes ?? "N/A"}
+                  <span>
+                    Rating: {topTrendingAnime[currentIndex].score}
                   </span>
-                </div>
+                  <span>
+                    Favorites: {topTrendingAnime[currentIndex].favorites}
+                  </span>
+                  </div>
+                  <div className="flex flex-row gap-2 flex-wrap">
+                    {topTrendingAnime[currentIndex].genres.map((genre, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-purple-300 text-purple-800 rounded-md"
+                      >
+                        {genre}
+                      </span>
+                    ))}
+                  </div>
+                  <p>
+                    {topTrendingAnime[currentIndex].synopsis}
+                  </p>
+              </div>
 
+              <div className="flex-1 h-full flex items-end justify-end overflow-hidden relative">
                 <img
                   src={topTrendingAnime[currentIndex].images}
                   alt={topTrendingAnime[currentIndex].title}
-                  className="w-auto"
+                  className="h-full w-auto object-cover opacity-70
+                            [mask-image:radial-gradient(circle,rgba(0,0,0,1)70%,rgba(0,0,0,0)100%)]
+                            [-webkit-mask-image:radial-gradient(circle,rgba(0,0,0,1)70%,rgba(0,0,0,0)100%)]"
                 />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+              </div>
 
-        <GrNext
-          onClick={handleNext}
-          className="hover:text-[#854CE6] transition-colors duration-200 cursor-pointer"
-        />
+              <div className="flex flex-col justify-center items-center p-3 gap-y-3 w-[50px]">
+                <GrNext
+                  onClick={handleNext}
+                  className="hover:text-[#854CE6] transition-colors duration-200 cursor-pointer"
+                />
+                <GrPrevious
+                  onClick={handlePrev}
+                  className="hover:text-[#854CE6] transition-colors duration-200 cursor-pointer"
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
+
+
+
+
+
 
       <div className="px-8 pt-10 h-full w-full">
         <div className="w-full outline-amber-300 outline-1 mb-10">

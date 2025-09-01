@@ -31,6 +31,10 @@ type AnimeTrendingData = {
   title: string;
   type: string;
   episodes: number | null;
+  score: number;
+  favorites: number;
+  synopsis: string;
+  genres: { name: string }[];
 };
 
 type Result = {
@@ -41,6 +45,21 @@ type Result = {
     title: string;
     type: string;
     episodes: number | null;
+  }[];
+};
+
+type ResultTrending = {
+  key: string;
+  data: {
+    mal_id: number;
+    images: string;
+    title: string;
+    type: string;
+    episodes: number | null;
+    score: number;
+    favorites: number;
+    synopsis: string;
+    genres: string[];
   }[];
 };
 
@@ -71,7 +90,7 @@ function filterUniqueCard(animes: AnimeCardData[], fetchLimit: number, maxInJson
 
 function filterUniqueTrending(animes: AnimeTrendingData[], fetchLimit: number, maxInJson?: number) {
   const usedIds = new Set<number>();
-  const unique: Result['data'] = [];
+  const unique: ResultTrending['data'] = [];
 
   for (const anime of animes) {
     if (!usedIds.has(anime.mal_id)) {
@@ -82,6 +101,10 @@ function filterUniqueTrending(animes: AnimeTrendingData[], fetchLimit: number, m
         title: anime.title,
         type: anime.type,
         episodes: anime.episodes ?? null,
+        score: anime.score,
+        favorites: anime.favorites,
+        synopsis: anime.synopsis,
+        genres: anime.genres.map(g => g.name), 
       });
     }
     if (unique.length >= fetchLimit) break;
