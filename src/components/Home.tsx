@@ -91,53 +91,62 @@ export default function Home() {
 
   return (
     <div className="h-full">
-      <div className="outline-amber-50 outline-1 w-full h-[60%] flex items-center justify-between px-5 text-3xl">
-        <GrPrevious
-          onClick={handlePrev}
-          className="hover:text-[#854CE6] transition-colors duration-200 cursor-pointer"
-        />
+      <div className="outline-amber-50 outline-1 w-full h-[70%] relative flex items-center text-3xl overflow-hidden">
+        <AnimatePresence mode="wait" custom={direction}>
+          {topTrendingAnime.length > 0 && (
+            <motion.div
+              key={currentIndex}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.4 }}
+              className="flex w-full h-full flex-col md:flex-row items-center"
+            >
 
-        <div className="flex flex-row items-center gap-6 overflow-hidden w-[400px] justify-center">
-          <AnimatePresence mode="wait" custom={direction}>
-            {topTrendingAnime.length > 0 && (
-              <motion.div
-                key={currentIndex}
-                custom={direction}
-                variants={variants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.4 }}
-                className="flex flex-row items-center gap-6"
-              >
-                <div className="flex flex-col max-w-[200px]">
-                  <h2 className="text-xl font-bold">
-                    {topTrendingAnime[currentIndex].title}
-                  </h2>
-                  <span className="text-sm">
-                    {topTrendingAnime[currentIndex].type}
-                  </span>
-                  <span className="text-sm">
-                    Episodes:{" "}
-                    {topTrendingAnime[currentIndex].episodes ?? "N/A"}
-                  </span>
-                </div>
+              <div className="flex flex-col justify-center w-full md:w-[30%] max-w-[250px] pl-6 md:pl-10 z-10">
+                <h2 className="text-xl font-bold line-clamp-2">
+                  {topTrendingAnime[currentIndex].title}
+                </h2>
+                <span className="text-sm">{topTrendingAnime[currentIndex].type}</span>
+                <span className="text-sm">
+                  Episodes: {topTrendingAnime[currentIndex].episodes ?? "N/A"}
+                </span>
+              </div>
 
+              <div className="flex-1 h-full flex items-center justify-center md:justify-end overflow-hidden">
                 <img
                   src={topTrendingAnime[currentIndex].images}
                   alt={topTrendingAnime[currentIndex].title}
-                  className="w-auto"
+                  className="h-full w-auto max-w-full object-contain opacity-90
+                            [mask-image:radial-gradient(circle,rgba(0,0,0,1)70%,rgba(0,0,0,0)100%)]
+                            [mask-repeat:no-repeat] [mask-position:center] [mask-size:cover]
+                            [-webkit-mask-image:radial-gradient(circle,rgba(0,0,0,1)70%,rgba(0,0,0,0)100%)]
+                            [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center] [-webkit-mask-size:cover]"
                 />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
 
-        <GrNext
-          onClick={handleNext}
-          className="hover:text-[#854CE6] transition-colors duration-200 cursor-pointer"
-        />
+                <div className="right-3 top-1/2 flex flex-col z-20 p-3 gap-y-3">
+                  <GrNext
+                    onClick={handleNext}
+                    className="hover:text-[#854CE6] transition-colors duration-200 cursor-pointer"
+                  />
+                  <GrPrevious
+                    onClick={handlePrev}
+                    className="hover:text-[#854CE6] transition-colors duration-200 cursor-pointer"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
+
+
+
+
+
 
       <div className="px-8 pt-10 h-full w-full">
         <div className="w-full outline-amber-300 outline-1 mb-10">
