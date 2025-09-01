@@ -8,6 +8,10 @@ type Anime = {
   title: string;
   type: string;
   episodes: number | null;
+  score: number;
+  favorites: number;
+  synopsis: string;
+  genres: string[];
 };
 
 export default function Home() {
@@ -104,14 +108,35 @@ export default function Home() {
               transition={{ duration: 0.4 }}
               className="flex w-full h-full flex-col md:flex-row items-center"
             >
-              <div className="flex flex-col justify-center md:w-[45%] w-full pl-6 md:pl-10 pr-6 z-10">
+              <div className="flex flex-col justify-center md:w-[45%] w-full pl-6 md:pl-10 pr-6 z-10 text-[12px] gap-y-4">
                 <h2 className="text-[48px] font-bold line-clamp-2">
                   {topTrendingAnime[currentIndex].title}
                 </h2>
-                <span className="text-lg">{topTrendingAnime[currentIndex].type}</span>
-                <span className="text-lg">
-                  Episodes: {topTrendingAnime[currentIndex].episodes ?? "N/A"}
-                </span>
+                 <div className="flex flex-row gap-3">
+                  <span>{topTrendingAnime[currentIndex].type}</span>
+                  <span>
+                    Episodes: {topTrendingAnime[currentIndex].episodes ?? "N/A"}
+                  </span>
+                  <span>
+                    Rating: {topTrendingAnime[currentIndex].score}
+                  </span>
+                  <span>
+                    Favorites: {topTrendingAnime[currentIndex].favorites}
+                  </span>
+                  </div>
+                  <div className="flex flex-row gap-2 flex-wrap">
+                    {topTrendingAnime[currentIndex].genres.map((genre, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-purple-300 text-purple-800 rounded-md"
+                      >
+                        {genre}
+                      </span>
+                    ))}
+                  </div>
+                  <p>
+                    {topTrendingAnime[currentIndex].synopsis}
+                  </p>
               </div>
 
               <div className="flex-1 h-full flex items-end justify-end overflow-hidden relative">
