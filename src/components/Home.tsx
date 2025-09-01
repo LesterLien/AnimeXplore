@@ -51,7 +51,7 @@ export default function Home() {
     if (topTrendingAnime.length === 0) return;
     const interval = setInterval(() => {
       handleNext();
-    }, 10000);
+    }, 1000000);
 
     return () => clearInterval(interval);
   }, [topTrendingAnime]);
@@ -104,38 +104,35 @@ export default function Home() {
               transition={{ duration: 0.4 }}
               className="flex w-full h-full flex-col md:flex-row items-center"
             >
-
-              <div className="flex flex-col justify-center w-full md:w-[30%] max-w-[250px] pl-6 md:pl-10 z-10">
-                <h2 className="text-xl font-bold line-clamp-2">
+              <div className="flex flex-col justify-center md:w-[45%] w-full pl-6 md:pl-10 pr-6 z-10">
+                <h2 className="text-[48px] font-bold line-clamp-2">
                   {topTrendingAnime[currentIndex].title}
                 </h2>
-                <span className="text-sm">{topTrendingAnime[currentIndex].type}</span>
-                <span className="text-sm">
+                <span className="text-lg">{topTrendingAnime[currentIndex].type}</span>
+                <span className="text-lg">
                   Episodes: {topTrendingAnime[currentIndex].episodes ?? "N/A"}
                 </span>
               </div>
 
-              <div className="flex-1 h-full flex items-center justify-center md:justify-end overflow-hidden">
+              <div className="flex-1 h-full flex items-end justify-end overflow-hidden relative">
                 <img
                   src={topTrendingAnime[currentIndex].images}
                   alt={topTrendingAnime[currentIndex].title}
-                  className="h-full w-auto max-w-full object-contain opacity-90
+                  className="h-full w-auto object-cover opacity-70
                             [mask-image:radial-gradient(circle,rgba(0,0,0,1)70%,rgba(0,0,0,0)100%)]
-                            [mask-repeat:no-repeat] [mask-position:center] [mask-size:cover]
-                            [-webkit-mask-image:radial-gradient(circle,rgba(0,0,0,1)70%,rgba(0,0,0,0)100%)]
-                            [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center] [-webkit-mask-size:cover]"
+                            [-webkit-mask-image:radial-gradient(circle,rgba(0,0,0,1)70%,rgba(0,0,0,0)100%)]"
                 />
+              </div>
 
-                <div className="right-3 top-1/2 flex flex-col z-20 p-3 gap-y-3">
-                  <GrNext
-                    onClick={handleNext}
-                    className="hover:text-[#854CE6] transition-colors duration-200 cursor-pointer"
-                  />
-                  <GrPrevious
-                    onClick={handlePrev}
-                    className="hover:text-[#854CE6] transition-colors duration-200 cursor-pointer"
-                  />
-                </div>
+              <div className="flex flex-col justify-center items-center p-3 gap-y-3 w-[50px]">
+                <GrNext
+                  onClick={handleNext}
+                  className="hover:text-[#854CE6] transition-colors duration-200 cursor-pointer"
+                />
+                <GrPrevious
+                  onClick={handlePrev}
+                  className="hover:text-[#854CE6] transition-colors duration-200 cursor-pointer"
+                />
               </div>
             </motion.div>
           )}
